@@ -1,0 +1,42 @@
+{
+    "name": "root",
+    "metadata": {
+        "timer_format_version": "0.1.0",
+        "start_time_seconds": "1732461614",
+        "python_version": "3.7.8 (tags/v3.7.8:4b47a5b6ba, Jun 28 2020, 08:53:46) [MSC v.1916 64 bit (AMD64)]",
+        "command_line_arguments": "C:\\Users\\kimhs\\AppData\\Local\\Programs\\Python\\Python37\\Scripts\\mlagents-learn config\\ppo\\craft.yaml --env=C:\\Users\\kimhs\\gamejam-handicraft\\build\\handicraft --run-id=tutorial_1",
+        "mlagents_version": "0.26.0",
+        "mlagents_envs_version": "0.26.0",
+        "communication_protocol_version": "1.5.0",
+        "pytorch_version": "1.7.1+cu110",
+        "numpy_version": "1.21.6",
+        "end_time_seconds": "1732461618"
+    },
+    "total": 4.285561400000001,
+    "count": 1,
+    "self": 0.27810100000000126,
+    "children": {
+        "run_training.setup": {
+            "total": 0.1311217,
+            "count": 1,
+            "self": 0.1311217
+        },
+        "TrainerController.start_learning": {
+            "total": 3.8763387,
+            "count": 1,
+            "self": 7.899999999905205e-05,
+            "children": {
+                "TrainerController._reset_env": {
+                    "total": 3.8762475000000003,
+                    "count": 1,
+                    "self": 3.8762475000000003
+                },
+                "TrainerController._save_models": {
+                    "total": 1.2200000000461841e-05,
+                    "count": 1,
+                    "self": 1.2200000000461841e-05
+                }
+            }
+        }
+    }
+}

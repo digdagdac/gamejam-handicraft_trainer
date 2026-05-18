@@ -1,0 +1,154 @@
+﻿{
+  "data": [
+    {
+      "ID": "0",
+      "Type": "1",
+      "Score": "40",
+      "TimeLimit": "30",
+      "LetterTypeCount": "4",
+      "LetterLength": "10",
+      "Letter": "나는 이 나라의 최후의 금속활자장이다..."
+    },
+    {
+      "ID": "1",
+      "Type": "2",
+      "Score": "10",
+      "TimeLimit": "0",
+      "LetterTypeCount": "100",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "2",
+      "Type": "3",
+      "Score": "10",
+      "TimeLimit": "35",
+      "LetterTypeCount": "0",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "3",
+      "Type": "1",
+      "Score": "70",
+      "TimeLimit": "25",
+      "LetterTypeCount": "8",
+      "LetterLength": "25",
+      "Letter": "모두가 사라지고 나만이 남았다."
+    },
+    {
+      "ID": "4",
+      "Type": "2",
+      "Score": "20",
+      "TimeLimit": "0",
+      "LetterTypeCount": "100",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "5",
+      "Type": "3",
+      "Score": "20",
+      "TimeLimit": "30",
+      "LetterTypeCount": "0",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "6",
+      "Type": "1",
+      "Score": "100",
+      "TimeLimit": "20",
+      "LetterTypeCount": "7",
+      "LetterLength": "25",
+      "Letter": "금속활자장으로서 책을 지킨다. 최후의 하나로서 자리를 지킨다."
+    },
+    {
+      "ID": "7",
+      "Type": "2",
+      "Score": "30",
+      "TimeLimit": "0",
+      "LetterTypeCount": "100",
+      "LetterLength": "60"
+    },
+    {
+      "ID": "8",
+      "Type": "3",
+      "Score": "30",
+      "TimeLimit": "25",
+      "LetterTypeCount": "0",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "9",
+      "Type": "1",
+      "Score": "250",
+      "TimeLimit": "15",
+      "LetterTypeCount": "9",
+      "LetterLength": "25",
+      "Letter": "금속활자장의 책임을, 최후의 의무를 다 해야 한다."
+    },
+    {
+      "ID": "10",
+      "Type": "2",
+      "Score": "40",
+      "TimeLimit": "0",
+      "LetterTypeCount": "100",
+      "LetterLength": "70"
+    },
+    {
+      "ID": "11",
+      "Type": "3",
+      "Score": "40",
+      "TimeLimit": "20",
+      "LetterTypeCount": "0",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "12",
+      "Type": "1",
+      "Score": "380",
+      "TimeLimit": "15",
+      "LetterTypeCount": "12",
+      "LetterLength": "30",
+      "Letter": "그것이 어떤 방법이라고 할지라도."
+    },
+    {
+      "ID": "13",
+      "Type": "2",
+      "Score": "50",
+      "TimeLimit": "0",
+      "LetterTypeCount": "60",
+      "LetterLength": "30"
+    },
+    {
+      "ID": "14",
+      "Type": "3",
+      "Score": "50",
+      "TimeLimit": "15",
+      "LetterTypeCount": "0",
+      "LetterLength": "0"
+    },
+    {
+      "ID": "15",
+      "Type": "1",
+      "Score": "450",
+      "TimeLimit": "15",
+      "LetterTypeCount": "15",
+      "LetterLength": "25",
+      "Letter": "어떤 대가를 치르게 될지라도."
+    },
+    {
+      "ID": "16",
+      "Type": "2",
+      "Score": "60",
+      "TimeLimit": "0",
+      "LetterTypeCount": "100",
+      "LetterLength": "80"
+    },
+    {
+      "ID": "17",
+      "Type": "3",
+      "Score": "60",
+      "TimeLimit": "10",
+      "LetterTypeCount": "0",
+      "LetterLength": "0"
+    }
+  ]
+}

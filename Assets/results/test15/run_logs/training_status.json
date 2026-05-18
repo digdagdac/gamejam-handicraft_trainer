@@ -1,0 +1,65 @@
+{
+    "TypingGame": {
+        "checkpoints": [
+            {
+                "steps": 29396,
+                "file_path": "results\\test15\\TypingGame\\TypingGame-29396.onnx",
+                "reward": -72.03091365701985,
+                "creation_time": 1734737191.0397954,
+                "auxillary_file_paths": [
+                    "results\\test15\\TypingGame\\TypingGame-29396.pt"
+                ]
+            },
+            {
+                "steps": 29658,
+                "file_path": "results\\test15\\TypingGame\\TypingGame-29658.onnx",
+                "reward": -66.02307692307693,
+                "creation_time": 1734737271.9813151,
+                "auxillary_file_paths": [
+                    "results\\test15\\TypingGame\\TypingGame-29658.pt"
+                ]
+            },
+            {
+                "steps": 29744,
+                "file_path": "results\\test15\\TypingGame\\TypingGame-29744.onnx",
+                "reward": -26.98235294117647,
+                "creation_time": 1734737299.049538,
+                "auxillary_file_paths": [
+                    "results\\test15\\TypingGame\\TypingGame-29744.pt"
+                ]
+            },
+            {
+                "steps": 31354,
+                "file_path": "results\\test15\\TypingGame\\TypingGame-31354.onnx",
+                "reward": -73.74532418952619,
+                "creation_time": 1734737466.3401034,
+                "auxillary_file_paths": [
+                    "results\\test15\\TypingGame\\TypingGame-31354.pt"
+                ]
+            },
+            {
+                "steps": 32080,
+                "file_path": "results\\test15\\TypingGame\\TypingGame-32080.onnx",
+                "reward": -1085.4356846473029,
+                "creation_time": 1734737572.4464345,
+                "auxillary_file_paths": [
+                    "results\\test15\\TypingGame\\TypingGame-32080.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 32080,
+            "file_path": "results\\test15\\TypingGame.onnx",
+            "reward": -1085.4356846473029,
+            "creation_time": 1734737572.4464345,
+            "auxillary_file_paths": [
+                "results\\test15\\TypingGame\\TypingGame-32080.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.26.0",
+        "torch_version": "1.7.1+cu110"
+    }
+}
