@@ -87,6 +87,9 @@
 # .NET build artifacts
 artifacts/
 
+# Local ML-Agents training environment
+.conda-mlagents/
+
 # Publish output
 publish/
 

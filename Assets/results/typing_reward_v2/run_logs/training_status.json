@@ -1,0 +1,29 @@
+{
+    "TypingGame": {
+        "checkpoints": [
+            {
+                "steps": 100004,
+                "file_path": "results\\typing_reward_v2\\TypingGame\\TypingGame-100004.onnx",
+                "reward": 24.709266429044764,
+                "creation_time": 1779116303.2877283,
+                "auxillary_file_paths": [
+                    "results\\typing_reward_v2\\TypingGame\\TypingGame-100004.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 100004,
+            "file_path": "results\\typing_reward_v2\\TypingGame.onnx",
+            "reward": 24.709266429044764,
+            "creation_time": 1779116303.2877283,
+            "auxillary_file_paths": [
+                "results\\typing_reward_v2\\TypingGame\\TypingGame-100004.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.26.0",
+        "torch_version": "1.8.1"
+    }
+}

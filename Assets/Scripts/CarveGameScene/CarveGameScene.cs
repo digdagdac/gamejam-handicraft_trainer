@@ -160,6 +160,12 @@ public class CarveGameScene : MonoBehaviour
         return limitTime;
     }
 
+    public float GetRemainingTimeRatio()
+    {
+        if (limitTime <= 0) return 0f;
+        return Mathf.Clamp01(GetRemainingTime() / limitTime);
+    }
+
     private void OnTimeOver()
     {
         _isTimeOver = true;
@@ -486,6 +492,114 @@ public class CarveGameScene : MonoBehaviour
         }
     }
 
+    public TypingActionResult ApplyAgentAction(int actionIndex)
+    {
+        int previousScore = score;
+        int sequenceLength = GetTrainingSequenceLength();
+
+        if (!TypingActionMap.TryGetKey(actionIndex, out KeyCode key) ||
+            !TypingActionMap.TryGetChar(actionIndex, out char inputChar) ||
+            sequenceLength == 0)
+        {
+            return new TypingActionResult(
+                false,
+                false,
+                false,
+                KeyCode.None,
+                '\0',
+                '\0',
+                previousScore,
+                score,
+                _stringPointer,
+                sequenceLength,
+                _combo);
+        }
+
+        char targetChar = GetCurrentChar();
+        bool isCorrect = targetChar == inputChar;
+        bool isComplete = false;
+
+        if (isCorrect)
+        {
+            if (_area != null)
+            {
+                _area.ActiveImageEffect(_stringPointer % 5);
+            }
+
+            if (_block != null)
+            {
+                _block.SetBlock(_stringPointer + 1);
+            }
+
+            _stringPointer++;
+            _combo++;
+            _curComboTime = ComboTime;
+
+            if (_comboText != null)
+            {
+                _comboText.GetInput(_combo);
+            }
+
+            if (_stringPointer % 5 == 0 && _area != null)
+            {
+                _area.ChangeArea(BuildAreaWindow());
+            }
+
+            score += 10;
+            UpdateScoreUI();
+
+            if (_stringPointer >= sequenceLength)
+            {
+                isComplete = true;
+                IsPlaying = false;
+                _isTimeOver = false;
+            }
+        }
+        else
+        {
+            _combo = 0;
+
+            if (_comboText != null)
+            {
+                _comboText.GetInput(_combo);
+            }
+
+            _wrongCount++;
+            score -= 5;
+            UpdateScoreUI();
+        }
+
+        return new TypingActionResult(
+            true,
+            isCorrect,
+            isComplete,
+            key,
+            targetChar,
+            inputChar,
+            previousScore,
+            score,
+            Mathf.Min(_stringPointer, sequenceLength),
+            sequenceLength,
+            _combo);
+    }
+
+    private string BuildAreaWindow()
+    {
+        if (_nonDuplicateString == null || _nonDuplicateString.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(5);
+        for (int i = 0; i < 5; ++i)
+        {
+            int index = (_stringPointer + i) % _nonDuplicateString.Length;
+            stringBuilder.Append(_nonDuplicateString[index]);
+        }
+
+        return stringBuilder.ToString();
+    }
+
     private void UpdateScoreUI()
     {
         if (scoreText != null)
@@ -624,111 +738,16 @@ public class CarveGameScene : MonoBehaviour
 
     private void MakeKeyCodeNCharTable()
     {
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.Q))
-        {
-            _keyCodeNCharPair.Add(KeyCode.Q, 'ㅂ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.W))
-        {
-            _keyCodeNCharPair.Add(KeyCode.W, 'ㅈ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.E))
-        {
-            _keyCodeNCharPair.Add(KeyCode.E, 'ㄷ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.R))
-        {
-            _keyCodeNCharPair.Add(KeyCode.R, 'ㄱ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.T))
-        {
-            _keyCodeNCharPair.Add(KeyCode.T, 'ㅅ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.Y))
-        {
-            _keyCodeNCharPair.Add(KeyCode.Y, 'ㅛ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.U))
-        {
-            _keyCodeNCharPair.Add(KeyCode.U, 'ㅕ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.I))
-        {
-            _keyCodeNCharPair.Add(KeyCode.I, 'ㅑ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.O))
-        {
-            _keyCodeNCharPair.Add(KeyCode.O, 'ㅐ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.P))
-        {
-            _keyCodeNCharPair.Add(KeyCode.P, 'ㅔ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.A))
-        {
-            _keyCodeNCharPair.Add(KeyCode.A, 'ㅁ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.S))
-        {
-            _keyCodeNCharPair.Add(KeyCode.S, 'ㄴ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.D))
-        {
-            _keyCodeNCharPair.Add(KeyCode.D, 'ㅇ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.F))
-        {
-            _keyCodeNCharPair.Add(KeyCode.F, 'ㄹ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.G))
-        {
-            _keyCodeNCharPair.Add(KeyCode.G, 'ㅎ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.H))
-        {
-            _keyCodeNCharPair.Add(KeyCode.H, 'ㅗ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.J))
-        {
-            _keyCodeNCharPair.Add(KeyCode.J, 'ㅓ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.K))
-        {
-            _keyCodeNCharPair.Add(KeyCode.K, 'ㅏ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.L))
-        {
-            _keyCodeNCharPair.Add(KeyCode.L, 'ㅣ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.Z))
-        {
-            _keyCodeNCharPair.Add(KeyCode.Z, 'ㅋ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.X))
-        {
-            _keyCodeNCharPair.Add(KeyCode.X, 'ㅌ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.C))
-        {
-            _keyCodeNCharPair.Add(KeyCode.C, 'ㅊ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.V))
-        {
-            _keyCodeNCharPair.Add(KeyCode.V, 'ㅍ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.B))
-        {
-            _keyCodeNCharPair.Add(KeyCode.B, 'ㅠ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.N))
-        {
-            _keyCodeNCharPair.Add(KeyCode.N, 'ㅜ');
-        }
-        if (!_keyCodeNCharPair.ContainsKey(KeyCode.M))
-        {
-            _keyCodeNCharPair.Add(KeyCode.M, 'ㅡ');
-        }
+        _keyCodeNCharPair.Clear();
 
+        for (int actionIndex = 0; actionIndex < TypingActionMap.ActionCount; actionIndex++)
+        {
+            if (TypingActionMap.TryGetKey(actionIndex, out KeyCode key) &&
+                TypingActionMap.TryGetChar(actionIndex, out char value))
+            {
+                _keyCodeNCharPair[key] = value;
+            }
+        }
     }
 
     public int GetScore()
@@ -741,9 +760,36 @@ public class CarveGameScene : MonoBehaviour
         return _isTimeOver;
     }
 
+    public int GetCombo()
+    {
+        return _combo;
+    }
+
+    public int GetCurrentInputIndex()
+    {
+        return _stringPointer;
+    }
+
+    public int GetTrainingSequenceLength()
+    {
+        return _nonDuplicateString == null ? 0 : _nonDuplicateString.Length;
+    }
+
+    public float GetTrainingProgress01()
+    {
+        int sequenceLength = GetTrainingSequenceLength();
+        if (sequenceLength <= 0) return 0f;
+        return Mathf.Clamp01((float)_stringPointer / sequenceLength);
+    }
+
     public char GetCurrentChar()
     {
-       return _nonDuplicateString[_stringPointer % _nonDuplicateString.Length];
+        if (_nonDuplicateString == null || _nonDuplicateString.Length == 0)
+        {
+            return '\0';
+        }
+
+        return _nonDuplicateString[_stringPointer % _nonDuplicateString.Length];
     }
    
 }
