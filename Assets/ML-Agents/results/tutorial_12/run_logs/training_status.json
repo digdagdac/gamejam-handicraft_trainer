@@ -1,0 +1,29 @@
+{
+    "CarveGameAgent": {
+        "checkpoints": [
+            {
+                "steps": 4938,
+                "file_path": "results\\tutorial_12\\CarveGameAgent\\CarveGameAgent-4938.onnx",
+                "reward": -25.0,
+                "creation_time": 1732461764.2489843,
+                "auxillary_file_paths": [
+                    "results\\tutorial_12\\CarveGameAgent\\CarveGameAgent-4938.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 4938,
+            "file_path": "results\\tutorial_12\\CarveGameAgent.onnx",
+            "reward": -25.0,
+            "creation_time": 1732461764.2489843,
+            "auxillary_file_paths": [
+                "results\\tutorial_12\\CarveGameAgent\\CarveGameAgent-4938.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "0.26.0",
+        "torch_version": "1.7.1+cu110"
+    }
+}
