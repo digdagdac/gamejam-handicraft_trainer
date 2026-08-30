@@ -110,11 +110,13 @@ flowchart LR
 
 별도 플레이어 빌드나 전체 게임 진입 과정 없이 학습된 Agent 씬만 확인할 수 있습니다.
 
-1. 저장소를 clone합니다.
+1. 저장소를 clone합니다. Windows에서는 `C:\UnityProjects\handicraft`처럼 영문·숫자 경로를 권장합니다.
 2. Unity Hub에서 프로젝트를 `Unity 2021.3.45f2`로 엽니다.
 3. 첫 실행의 Package Manager 의존성 복원이 끝날 때까지 기다립니다.
 4. [`Assets/Scenes/2.Game1.unity`](Assets/Scenes/2.Game1.unity)를 직접 엽니다.
 5. Play를 누르면 연결된 `TypingGame.onnx`가 26개 discrete action을 추론합니다.
+
+ML-Agents 2.0.1의 Windows gRPC native bridge는 비 ASCII 프로젝트 경로에서 로드 오류가 보고되어 있습니다([Unity ML-Agents #6188](https://github.com/Unity-Technologies/ml-agents/issues/6188)). 연결된 ONNX 추론은 trainer 없이 동작하지만, 깨끗한 Console과 선택적 trainer 연결 재현을 위해 영문·숫자 경로를 사용합니다.
 
 루트 [`Packages/manifest.json`](Packages/manifest.json)과 [`Packages/packages-lock.json`](Packages/packages-lock.json)은 새 clone에서 ML-Agents와 UniTask 등 필요한 패키지를 같은 버전으로 복원하기 위한 파일입니다. 이는 독립 ML 씬을 원작 전체 진행에 다시 합치는 변경이 아니라, `2.Game1` 하나가 새 환경에서도 컴파일되게 하는 실행 전제입니다.
 
