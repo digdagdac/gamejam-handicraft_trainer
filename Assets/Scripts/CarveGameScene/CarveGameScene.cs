@@ -124,9 +124,19 @@ public class CarveGameScene : MonoBehaviour
 
     public void FinishGame(bool bSuccess = true)
     {
+        if (!IsPlaying)
+        {
+            return;
+        }
+
         IsPlaying = false;
         _isTimeOver = !bSuccess;
         Clear();
+    }
+
+    public void OnClickFinish()
+    {
+        FinishGame(true);
     }
 
     public void InitializeGameState()

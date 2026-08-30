@@ -1,152 +1,138 @@
-# 금속활자장 (Handicraft) - ML-Agents Trainer
+# 금속활자장 (Handicraft) — Unity Client · ML-Agents Portfolio
 
-> Unity 미니게임 3종으로 구성된 게임잼 작품과, 그 타자 미니게임을 ML-Agents 학습 환경으로 재구성한 실험을 함께 담은 저장소입니다.
+> Unity 미니게임 3종으로 구성된 게임잼 작품과, 타자 미니게임을 반복 가능한 ML-Agents 환경으로 재구성한 과정을 함께 담은 저장소입니다.
 
 | 항목 | 내용 |
 |---|---|
 | 엔진 | Unity 2021.3.45f2 |
 | 언어 | C# |
-| 학습 | ML-Agents 0.26.0 / PPO / PyTorch 1.8.1 |
-| 개인 작성 스크립트 | `Assets/Scripts/` 48개 |
-| 역할 | 클라이언트 프로그래밍, 게임 루프 구조, 학습 환경 재구성 |
+| 학습 환경 | Unity ML-Agents package 2.0.1 / Python trainer 0.26.0 / PPO |
+| 역할 | 클라이언트 프로그래밍, 공통 게임 루프, 미니게임 3종, 학습 환경 재구성 |
+| 실행 방식 | Public clone → Unity 2021.3.45f2 → `2.Game1` 직접 Editor Play (별도 빌드 불필요) |
 
----
+## 1. 3분 검토 동선
 
-## 1. 이 저장소를 보는 순서
+| 시간 | 파일 | 확인할 내용 |
+|---:|---|---|
+| 0:00 | 아래 아키텍처 다이어그램 | 게임 흐름과 ML 경계를 먼저 파악 |
+| 0:30 | [`Assets/Scripts/Scene/BaseGame.cs`](Assets/Scripts/Scene/BaseGame.cs) | 타이밍 계열 미니게임의 시간·점수·종료 흐름을 공통화한 구조 |
+| 1:00 | [`Assets/Scripts/CarveGameScene/CarveGameAgent.cs`](Assets/Scripts/CarveGameScene/CarveGameAgent.cs) | 현재 `2.Game1` 씬에 연결된 29개 관측·26개 행동·보상·Episode 계약 |
+| 2:00 | [`Assets/Scripts/CarveGameScene/TypingActionMap.cs`](Assets/Scripts/CarveGameScene/TypingActionMap.cs) | 키보드 입력, 한글 자모, ML action index 사이의 단일 매핑 경계 |
+| 2:30 | [`docs/ML_EXPERIMENT.md`](docs/ML_EXPERIMENT.md) | 실패 로그 → 설정 재조정 → 보존 산출물까지의 근거 |
 
-시간이 없다면 아래 3개만 보셔도 됩니다.
+`Assets/Scripts/ML/TypingAgent.cs`는 별도 보상 설계를 시험한 실험 코드이며, 현재 `2.Game1` 씬에 연결된 Agent가 아닙니다. 현재 실행 경로는 `CarveGameScene/CarveGameAgent.cs`입니다.
 
-| 순서 | 파일 | 무엇을 볼 수 있는지 |
-|---|---|---|
-| 1 | [`Assets/Scripts/Scene/BaseGame.cs`](Assets/Scripts/Scene/BaseGame.cs) | 미니게임 3종을 하나의 추상 클래스로 공통화한 구조 |
-| 2 | [`Assets/Scripts/ML/TypingAgent.cs`](Assets/Scripts/ML/TypingAgent.cs) | 게임 루프를 학습 가능한 계약으로 바꾼 Agent 구현 |
-| 3 | [`Assets/Scripts/CarveGameScene/TypingActionMap.cs`](Assets/Scripts/CarveGameScene/TypingActionMap.cs) | 게임 입력 결과를 학습용 관측 데이터로 변환하는 경계 |
+## 2. 원작 게임과 ML 데모를 분리한 구조
 
-더 보고 싶다면 [`docs/ML_EXPERIMENT.md`](docs/ML_EXPERIMENT.md)에 학습 실패와 재조정 과정이 로그와 함께 정리되어 있습니다.
+```mermaid
+flowchart LR
+    Repo["Public 저장소"] --> Game["게임잼 원작 코드<br/>Intro · Lobby · 미니게임"]
+    Repo --> Demo["독립 ML 데모<br/>2.Game1 직접 실행"]
 
----
-
-## 2. 게임 구조
-
-한 판의 흐름은 아래와 같습니다.
-
-```
-0.Intro  ->  1.Lobby  ->  2.Game1 / 2.Game2 / 2.Game3  ->  99.Ending
-                                    |
-                          BaseGame (abstract)
-                                    |
-          +-------------------------+-------------------------+
-          |                         |                         |
-   TypingStyleGame          TimingStyleGame          FluidTimingStyleGame
-   (타자)                    (타이밍)                   (유체 타이밍)
+    Game --> Base["BaseGame<br/>시간 · 점수 · 종료 공통화"]
+    Demo --> Scene["CarveGameScene<br/>타자 규칙과 상태"]
+    Scene --> Agent["CarveGameAgent<br/>29 observations · 26 actions"]
+    Model["typing_reward_v2<br/>TypingGame.onnx"] --> Agent
 ```
 
-미니게임 3종은 규칙이 서로 다르지만, 시간 제한과 점수 집계와 성공·실패 판정은 동일하게 필요했습니다.
-그래서 공통 흐름을 [`BaseGame`](Assets/Scripts/Scene/BaseGame.cs)에 두고 각 미니게임은 필요한 부분만 재정의합니다.
+타이밍 계열 미니게임은 시간 제한, 점수 집계, 시작·종료 판정을 [`BaseGame`](Assets/Scripts/Scene/BaseGame.cs)에서 공유합니다. `2.Game1`은 학습·추론 검토만 빠르게 할 수 있도록 [`CarveGameScene`](Assets/Scripts/CarveGameScene/CarveGameScene.cs)과 `CarveGameAgent`를 한 씬에 둔 **독립 ML 데모**입니다. 원작 전체 진행에 다시 합치는 것이 목적이 아니므로, 검토자는 `2.Game1`을 직접 열어 확인합니다.
 
-| 계층 | 책임 | 파일 |
+| 계층 | 책임 | 대표 파일 |
 |---|---|---|
-| BaseGame | 시간 관리, 점수 집계, 시작·종료 판정 | `Scene/BaseGame.cs` |
-| 개별 미니게임 | 각 게임 고유 규칙 | `Scene/TypingStyleGame.cs` 외 |
-| GameManager | 게임 모드 전환, 전역 이벤트 | `Core/GameManager.cs` |
-| DataManager / AccountManager | 스테이지 데이터, 진행 상태 저장 | `Core/` |
-| Popup | 성공·실패·수집·설정 UI | `Popup/` 13개 |
+| 타이밍 계열 공통 루프 | 시간 관리, 점수 집계, 시작·종료 판정 | [`BaseGame.cs`](Assets/Scripts/Scene/BaseGame.cs), [`TimingStyleGame.cs`](Assets/Scripts/Scene/TimingStyleGame.cs) |
+| 현재 타자 게임 | 타자 규칙과 ML 상태 경계 | [`CarveGameScene.cs`](Assets/Scripts/CarveGameScene/CarveGameScene.cs) |
+| 미니게임 규칙 | 유체·매칭 타이밍 규칙 | [`FluidTimingStyleGame.cs`](Assets/Scripts/Scene/FluidTimingStyleGame.cs), [`MatchingTimingStyleGame.cs`](Assets/Scripts/Scene/MatchingTimingStyleGame.cs) |
+| 원작 씬 전환 코드 | Intro/Lobby/Game/Ending 전환과 전역 이벤트 | [`GameManager.cs`](Assets/Scripts/Core/GameManager.cs) |
+| 상태/UI | 진행 데이터, 점수, 성공·실패·수집 UI | [`Assets/Scripts/Core`](Assets/Scripts/Core), [`Assets/Scripts/Popup`](Assets/Scripts/Popup) |
 
----
+## 3. 현재 ML 실행 계약
 
-## 3. ML-Agents 실험: 게임 루프를 학습 가능하게 만들기
+`2.Game1.unity`의 `TypingGame` 오브젝트에는 `CarveGameAgent`, `BehaviorParameters`, `DecisionRequester`가 연결되어 있습니다. `BehaviorParameters`에는 저장소의 [`typing_reward_v2/TypingGame.onnx`](Assets/results/typing_reward_v2/TypingGame.onnx)를 연결했고, Agent의 serialized field는 씬의 `CarveGameScene` 컴포넌트를 참조합니다.
 
-### 문제
+```mermaid
+flowchart LR
+    Scene["CarveGameScene<br/>현재 문자 · 진행률 · 콤보 · 남은 시간"]
+    Agent["CarveGameAgent<br/>Observation 29"]
+    Model["TypingGame.onnx<br/>PPO inference"]
+    PPO["Behavior: TypingGame<br/>Discrete branch 26"]
+    Map["TypingActionMap<br/>index ↔ KeyCode ↔ 한글 자모"]
+    Result["ApplyAgentAction<br/>정오답 · 완료 · 점수 변화"]
+    Reward["Reward / EndEpisode"]
 
-타자 미니게임에 강화학습을 붙이려 했지만, 모델을 손대기 전에 게임 자체가 학습에 부적합했습니다.
-
-- 로비에서 미니게임 3종으로 이어지는 전체 흐름과 학습 경계가 섞여 있었습니다.
-- Episode가 시작될 때마다 씬을 다시 불러오면서 무한 루프에 빠졌습니다.
-
-### 해결
-
-학습 범위를 타자 씬으로 좁히고, 씬 리로드 대신 상태 값만 초기화하도록 다시 설계했습니다.
-
-```csharp
-// TypingAgent.cs
-public override void OnEpisodeBegin()
-{
-    currentCombo = 0;
-    previousScore = 0;
-    isInFeverMode = false;
-
-    if (gameScene != null)
-    {
-        gameScene.RestartGame();
-    }
-}
+    Scene --> Agent
+    Model --> PPO
+    Agent --> PPO --> Map --> Result --> Scene
+    Result --> Reward
 ```
 
-게임 쪽에는 학습이 필요한 상태만 노출하는 메서드를 추가했습니다.
-`InitializeGameState()`, `RestartGame()`, `GetRemainingTime()`, `GetScore()`가 그 경계입니다.
-
-### 환경 계약
-
-| 구분 | 설계 | 근거 |
+| 구분 | 현재 설계 | 코드 근거 |
 |---|---|---|
-| Observation | 보이는 문자별 자모 one-hot + 콤보/10 + 점수/1000 + 피버 여부 | `TypingAgent.cs` `CollectObservations` |
-| Action | Discrete index를 실제 자모 `KeyCode`로 변환 | `ConvertActionToKeyCode` |
-| Reward | 정답 +1 / 오답 -0.5 / 콤보 +0.2 / 피버 +0.5 / 시간초과 -1 | `TypingAgent.cs` 보상 필드 |
-| Episode | 콤보·점수·피버 초기화, 시간 종료로 판정 | `OnEpisodeBegin` |
+| Observation | 현재 자모 one-hot 26 + 진행률 + 콤보 + 남은 시간 비율 = 29 | [`CarveGameAgent.CollectObservations`](Assets/Scripts/CarveGameScene/CarveGameAgent.cs) |
+| Action | Discrete 26개를 `KeyCode`와 한글 자모로 변환 | [`TypingActionMap.cs`](Assets/Scripts/CarveGameScene/TypingActionMap.cs) |
+| Reward | step -0.001 / 정답 +1 / 오답 -0.2 / 완성 +5 / 시간초과 -1 | [`CarveGameAgent.OnActionReceived`](Assets/Scripts/CarveGameScene/CarveGameAgent.cs) |
+| Episode | 씬 reload 없이 `Clear → InitializeGameState → Init`으로 상태 초기화 | [`CarveGameAgent.OnEpisodeBegin`](Assets/Scripts/CarveGameScene/CarveGameAgent.cs) |
+| 게임 경계 | Agent action을 실제 타자 규칙에 적용하고 결과 구조체 반환 | [`CarveGameScene.ApplyAgentAction`](Assets/Scripts/CarveGameScene/CarveGameScene.cs) |
 
-### 결과
+### 코드 버전 구분
 
-| 실행 | steps | 최종 reward | 의미 |
+| 파일 | 상태 | 해석 |
+|---|---|---|
+| [`CarveGameScene/CarveGameAgent.cs`](Assets/Scripts/CarveGameScene/CarveGameAgent.cs) | **현재 씬 연결** | `2.Game1`과 `typing_reward_v2` 산출물이 추가된 현재 학습 경로 |
+| [`ML/TypingAgent.cs`](Assets/Scripts/ML/TypingAgent.cs) | 별도 실험 | 다른 관측·콤보·피버 보상을 시도한 코드. 현재 씬 연결 아님 |
+| [`ML-agent/CarveGameAgent.cs`](Assets/Scripts/ML-agent/CarveGameAgent.cs) | 레거시 보존 | 초기 접근을 비교하기 위해 남긴 이전 버전 |
+
+## 4. 실패를 지우지 않은 실험 기록
+
+```mermaid
+flowchart LR
+    A["test15<br/>29,744 step: -26.98"] --> B["이후 발산<br/>32,080 step: -1085.44"]
+    B --> C["PPO/실행 설정 재조정<br/>buffer · batch · horizon · time scale"]
+    C --> D["typing_reward_v2<br/>100,004 step: +24.71"]
+    D --> E["ONNX · PT · config · logs<br/>저장소에 함께 보존"]
+```
+
+| 실행 | steps | 기록된 reward | 해석 |
 |---|---:|---:|---|
-| `test15` | 29,744 | -26.98 | 최고 checkpoint |
-| `test15` | 32,080 | **-1085.44** | 학습 발산 |
-| `typing_reward_v2` | 100,004 | **+24.71** | 재조정 후 수렴 |
+| `test15` | 29,744 | -26.98 | 해당 실행의 최고 checkpoint |
+| `test15` | 32,080 | **-1085.44** | 최종 checkpoint에서 발산 |
+| `typing_reward_v2` | 100,004 | **+24.71** | 재조정 후 양의 학습 reward로 종료 |
 
-첫 실행은 중간까지 개선되다가 발산했습니다. 원인을 학습 설정에서 찾아 아래를 바꿨습니다.
+근거 파일:
 
-| 설정 | test15 | typing_reward_v2 |
-|---|---|---|
-| `buffer_size` | 12000 | 4096 |
-| `batch_size` | 64 | 128 |
-| `time_horizon` | 128 | 64 |
-| `time_scale` | 0.1 | 20 |
-| `no_graphics` | false | true |
+- [`test15 training_status.json`](Assets/results/test15/run_logs/training_status.json)
+- [`typing_reward_v2 training_status.json`](Assets/results/typing_reward_v2/run_logs/training_status.json)
+- [`typing_reward_v2 configuration.yaml`](Assets/results/typing_reward_v2/configuration.yaml)
+- [`typing_reward_v2 최종 ONNX`](Assets/results/typing_reward_v2/TypingGame.onnx)
 
-수치는 저장소에 커밋된 로그에서 직접 확인할 수 있습니다.
+이 수치는 **학습 로그의 reward 개선**입니다. 실제 게임의 재미, 레벨 디자인 품질, 사람보다 뛰어난 플레이를 증명하는 지표로 해석하지 않습니다.
 
-- [`Assets/results/test15/run_logs/training_status.json`](Assets/results/test15/run_logs/training_status.json)
-- [`Assets/results/typing_reward_v2/run_logs/training_status.json`](Assets/results/typing_reward_v2/run_logs/training_status.json)
-- [`Assets/results/typing_reward_v2/configuration.yaml`](Assets/results/typing_reward_v2/configuration.yaml)
+## 5. Public clone에서 독립 ML 데모 실행
 
-### 한계
+별도 플레이어 빌드나 전체 게임 진입 과정 없이 학습된 Agent 씬만 확인할 수 있습니다.
 
-이 결과는 **학습 지표 개선**입니다. 실제 게임의 재미나 레벨 디자인이 좋아졌다는 증거는 아닙니다.
-에이전트가 사람보다 잘 친다는 의미도 아닙니다. 검증한 것은 "게임 루프를 반복 실행 가능한 학습 환경으로 바꿀 수 있는가"까지입니다.
+1. 저장소를 clone합니다.
+2. Unity Hub에서 프로젝트를 `Unity 2021.3.45f2`로 엽니다.
+3. 첫 실행의 Package Manager 의존성 복원이 끝날 때까지 기다립니다.
+4. [`Assets/Scenes/2.Game1.unity`](Assets/Scenes/2.Game1.unity)를 직접 엽니다.
+5. Play를 누르면 연결된 `TypingGame.onnx`가 26개 discrete action을 추론합니다.
 
----
+루트 [`Packages/manifest.json`](Packages/manifest.json)과 [`Packages/packages-lock.json`](Packages/packages-lock.json)은 새 clone에서 ML-Agents와 UniTask 등 필요한 패키지를 같은 버전으로 복원하기 위한 파일입니다. 이는 독립 ML 씬을 원작 전체 진행에 다시 합치는 변경이 아니라, `2.Game1` 하나가 새 환경에서도 컴파일되게 하는 실행 전제입니다.
 
-## 4. 실행 방법
+### 선택: Editor에서 학습 연결
 
-### 게임 실행
-
-1. Unity 2021.3.45f2로 이 저장소를 엽니다.
-2. `Assets/Scenes/0.Intro.unity`를 열고 Play를 누릅니다.
-
-### 학습 재현
+기본 Play는 연결된 ONNX 추론으로 동작합니다. 학습을 다시 연결하려면 Python ML-Agents 0.26.0 환경에서 아래 명령을 실행한 뒤, 터미널이 Unity 연결을 기다릴 때 `2.Game1` 씬의 Play를 누릅니다.
 
 ```bash
-mlagents-learn Assets/results/typing_reward_v2/configuration.yaml --run-id=typing_reward_v3
+mlagents-learn Assets/Config/craft.yaml --run-id=typing_editor_v1
 ```
 
-학습 전용 빌드는 [`Assets/Editor/TrainingBuild.cs`](Assets/Editor/TrainingBuild.cs)로 생성합니다.
+[`Assets/results/typing_reward_v2/configuration.yaml`](Assets/results/typing_reward_v2/configuration.yaml)은 당시 실행이 기록한 resolved 설정과 환경 경로를 보존한 증빙 파일입니다. 새 실행 입력은 [`Assets/Config/craft.yaml`](Assets/Config/craft.yaml)을 사용합니다.
 
----
-
-## 5. 담당 범위
+## 6. 담당 범위와 경계
 
 | 구분 | 내용 |
 |---|---|
-| 직접 작성 | `Assets/Scripts/` 48개 스크립트, 게임 루프 구조, 미니게임 3종 구현, 학습 환경 재구성 |
-| 직접 작성 아님 | `Assets/Plugins/` (DOTween, UniRx), `LiquidSimulation-Unity-Games`, 아트 리소스 |
+| 구현 범위 | `Assets/Scripts/`의 게임 루프, 미니게임 3종, 타자 입력 경계, ML 학습 환경 재구성 |
+| 외부 자산 | `Assets/Plugins/`의 DOTween·UniRx, `LiquidSimulation-Unity-Games`, 아트 리소스 |
 
-아트 리소스와 서드파티 플러그인은 원저작자에게 권리가 있습니다.
+외부 플러그인과 아트 리소스의 권리는 각 원저작자에게 있습니다.

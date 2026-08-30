@@ -1,5 +1,6 @@
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
+using Unity.MLAgents.Policies;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
 
@@ -7,6 +8,8 @@ public class CarveGameAgent : Agent
 {
     [SerializeField]
     private CarveGameScene gameScene;
+
+    private BehaviorParameters behaviorParameters;
 
     private const int ObservationSize = TypingActionMap.ActionCount + 3;
     private const float StepPenalty = -0.001f;
@@ -17,6 +20,7 @@ public class CarveGameAgent : Agent
 
     public override void Initialize()
     {
+        behaviorParameters = GetComponent<BehaviorParameters>();
         ResolveGameScene();
     }
 
@@ -50,6 +54,14 @@ public class CarveGameAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions)
     {
+        // Manual play is handled once by CarveGameScene.CheckInput. In a
+        // model-less Default/Heuristic policy, ignore the cleared action buffer
+        // so its valid default value (0) cannot become repeated keyboard input.
+        if (behaviorParameters != null && behaviorParameters.IsInHeuristicMode())
+        {
+            return;
+        }
+
         if (gameScene == null && !ResolveGameScene())
         {
             AddReward(TimeoutPenalty);
@@ -57,9 +69,8 @@ public class CarveGameAgent : Agent
             return;
         }
 
-        AddReward(StepPenalty);
-
         int actionIndex = actions.DiscreteActions[0];
+        AddReward(StepPenalty);
         TypingActionResult result = gameScene.ApplyAgentAction(actionIndex);
 
         if (!result.IsValidAction)
@@ -87,12 +98,10 @@ public class CarveGameAgent : Agent
 
     public override void Heuristic(in ActionBuffers actionsOut)
     {
+        // Keep the action inside the configured 0..25 branch. It is ignored by
+        // OnActionReceived while the effective policy is heuristic.
         ActionSegment<int> discreteActionsOut = actionsOut.DiscreteActions;
-
-        if (TypingActionMap.TryGetPressedAction(out int actionIndex))
-        {
-            discreteActionsOut[0] = actionIndex;
-        }
+        discreteActionsOut[0] = 0;
     }
 
     private bool ResolveGameScene()
