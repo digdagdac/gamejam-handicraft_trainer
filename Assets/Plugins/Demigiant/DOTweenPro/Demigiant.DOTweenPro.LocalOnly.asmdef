@@ -1,0 +1,16 @@
+{
+  "name": "Demigiant.DOTweenPro.LocalOnly",
+  "rootNamespace": "",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "DOTWEEN_PRO_LOCAL"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

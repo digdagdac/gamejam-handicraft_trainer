@@ -118,6 +118,8 @@ flowchart LR
 
 루트 [`Packages/manifest.json`](Packages/manifest.json)과 [`Packages/packages-lock.json`](Packages/packages-lock.json)은 새 clone에서 ML-Agents와 UniTask 등 필요한 패키지를 같은 버전으로 복원하기 위한 파일입니다. 이는 독립 ML 씬을 원작 전체 진행에 다시 합치는 변경이 아니라, `2.Game1` 하나가 새 환경에서도 컴파일되게 하는 실행 전제입니다.
 
+Public clone에는 `2.Game1`이 사용하는 **DOTween Free** 런타임만 원본 그대로 포함합니다. 유료 **DOTween Pro** 바이너리는 공개하지 않으며, Pro 전용 스크립트는 로컬 라이선스 환경에서 `DOTWEEN_PRO_LOCAL` define을 설정했을 때만 컴파일됩니다. 따라서 이 저장소에서 지원하는 실행 경로는 Pro 컴포넌트를 쓰지 않는 독립 `2.Game1` 씬입니다. DOTween 저작권과 배포 조건은 함께 보존한 [`readme.txt`](Assets/Plugins/Demigiant/DOTween/readme.txt)와 [공식 라이선스](https://dotween.demigiant.com/license.php)를 따릅니다.
+
 ### 선택: Editor에서 학습 연결
 
 기본 Play는 연결된 ONNX 추론으로 동작합니다. 학습을 다시 연결하려면 Python ML-Agents 0.26.0 환경에서 아래 명령을 실행한 뒤, 터미널이 Unity 연결을 기다릴 때 `2.Game1` 씬의 Play를 누릅니다.
